@@ -9,7 +9,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-public class MqttMessaging extends Mqtt {
+public class MqttMessaging extends Mqtt
+{
     private final int MAX_PERMITS = 1;
     private final Semaphore MESSAGING_SEMAPHORE = new Semaphore(MAX_PERMITS);
     private String subscribeTopic;
@@ -104,7 +105,6 @@ public class MqttMessaging extends Mqtt {
 
         return null;
 
-
     }
 
     @Override
@@ -128,7 +128,8 @@ public class MqttMessaging extends Mqtt {
     }
 
     @Override
-    void onReconnectComplete(boolean status) throws IOException {
+    void onReconnectComplete(boolean status) throws IOException
+    {
 
         if (status)
         {

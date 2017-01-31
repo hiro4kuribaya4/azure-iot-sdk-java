@@ -3,6 +3,8 @@
 
 package com.microsoft.azure.sdk.iot.device;
 
+import com.microsoft.azure.sdk.iot.device.DeviceTwin.DeviceTwin;
+import com.microsoft.azure.sdk.iot.device.DeviceTwin.DeviceTwinCallback;
 import com.microsoft.azure.sdk.iot.device.transport.amqps.AmqpsTransport;
 import com.microsoft.azure.sdk.iot.device.transport.https.HttpsTransport;
 import com.microsoft.azure.sdk.iot.device.transport.IotHubReceiveTask;
@@ -40,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  * The client supports HTTPS 1.1 and AMQPS 1.0 transports.
  */
-public final class DeviceClient implements Closeable
+public class DeviceClient implements Closeable
 {
     /** The state of the IoT Hub client's connection with the IoT Hub. */
     protected enum IotHubClientState
@@ -82,6 +84,8 @@ public final class DeviceClient implements Closeable
 
     protected DeviceClientConfig config;
     protected IotHubTransport transport;
+
+    protected DeviceTwin deviceTwin;
 
     protected ScheduledExecutorService taskScheduler;
     protected IotHubClientState state;
@@ -286,6 +290,30 @@ public final class DeviceClient implements Closeable
         // Codes_SRS_DEVICECLIENT_11_012: [The function shall set the message callback, with its associated context.]
         this.config.setMessageCallback(callback, context);
         return this;
+    }
+
+    private void createDeviceTwin(DeviceTwinCallback callback,
+                         Object context)
+    {
+        if (this.deviceTwin == null)
+        {
+            deviceTwin = new DeviceTwin();
+        }
+        deviceTwin.getDeviceTwin(callback, context);
+
+    }
+
+    private void subscribeToDesiredPorperties(DeviceTwinCallback callback,
+                                        Object context)
+    {
+
+
+    }
+
+    private void sendReportedProperties(String properties, DeviceTwinCallback callback,
+                                  Object context )
+    {
+
     }
 
     /**
