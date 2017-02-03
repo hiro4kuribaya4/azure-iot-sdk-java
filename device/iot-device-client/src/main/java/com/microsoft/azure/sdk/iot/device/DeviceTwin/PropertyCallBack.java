@@ -3,9 +3,7 @@
 
 package com.microsoft.azure.sdk.iot.device.DeviceTwin;
 
-import com.microsoft.azure.sdk.iot.device.IotHubStatusCode;
-
-public interface DeviceTwinCallback
+public interface PropertyCallBack <Type1, Type2>
 {
-    public void DeviceTwinCall(IotHubStatusCode status, String data, Object context);
+    void PropertyCall(Type1 propertyKey, Type2 propertyValue,  Object context);
 }

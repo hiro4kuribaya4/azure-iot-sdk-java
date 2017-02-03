@@ -3,16 +3,15 @@
 
 package com.microsoft.azure.sdk.iot.device;
 
-import com.microsoft.azure.sdk.iot.device.DeviceTwin.DeviceTwin;
-import com.microsoft.azure.sdk.iot.device.DeviceTwin.DeviceTwinCallback;
+import com.microsoft.azure.sdk.iot.device.DeviceTwin.*;
 import com.microsoft.azure.sdk.iot.device.transport.amqps.AmqpsTransport;
 import com.microsoft.azure.sdk.iot.device.transport.https.HttpsTransport;
 import com.microsoft.azure.sdk.iot.device.transport.IotHubReceiveTask;
 import com.microsoft.azure.sdk.iot.device.transport.IotHubSendTask;
 import com.microsoft.azure.sdk.iot.device.transport.IotHubTransport;
 import com.microsoft.azure.sdk.iot.device.transport.mqtt.MqttTransport;
-import java.io.Closeable;
 
+import java.io.Closeable;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -20,6 +19,8 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  * The client supports HTTPS 1.1 and AMQPS 1.0 transports.
  */
-public class DeviceClient implements Closeable
+public final class DeviceClient implements Closeable
 {
     /** The state of the IoT Hub client's connection with the IoT Hub. */
     protected enum IotHubClientState
@@ -292,27 +293,40 @@ public class DeviceClient implements Closeable
         return this;
     }
 
-    private void createDeviceTwin(DeviceTwinCallback callback,
-                         Object context)
+    public void startDeviceTwin(IotHubEventCallback deviceTwinCallback, Object deviceTwinCallbackContext,
+                            PropertyCallBack genericPropertyCallBack, Object propertyCallbackContext) throws IOException
     {
         if (this.deviceTwin == null)
         {
-            deviceTwin = new DeviceTwin();
+           deviceTwin = new DeviceTwin(this, this.config, deviceTwinCallback, deviceTwinCallbackContext,
+                                        genericPropertyCallBack, propertyCallbackContext);
         }
-        deviceTwin.getDeviceTwin(callback, context);
+        else
+        {
+            throw new UnsupportedOperationException("You have already initialised twin");
+        }
 
+        deviceTwin.getDeviceTwin();
     }
 
-    private void subscribeToDesiredPorperties(DeviceTwinCallback callback,
-                                        Object context)
+    public void subscribeToDesiredPorperties(HashMap<Property, Pair<PropertyCallBack<String, Object>, Object>> onDesiredPropertyChange) throws IOException
     {
+        if (this.deviceTwin == null)
+        {
+            throw new UnsupportedOperationException("Start twin before using it");
+        }
 
-
+        this.deviceTwin.subscribeDesiredPropertiesNotification(onDesiredPropertyChange);
     }
 
-    private void sendReportedProperties(String properties, DeviceTwinCallback callback,
-                                  Object context )
+    public void sendReportedProperties(HashSet<Property> reportedProperties) throws IOException
     {
+        if (this.deviceTwin == null)
+        {
+            throw new UnsupportedOperationException("Start twin before using it");
+        }
+
+        this.deviceTwin.updateReportedProperties(reportedProperties);
 
     }
 
