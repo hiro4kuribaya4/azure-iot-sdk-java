@@ -665,6 +665,31 @@ public class AmqpsIotHubConnectionTest {
         };
     }
 
+    @Test(expected = Exception.class)
+    public void sendMessageThrowExceptionWithAdvanceAndFree() throws IOException
+    {
+      baseExpectations();
+
+      new Expectations() {
+          {
+              mockSender.send((byte[]) any, anyInt, anyInt);
+              result = new IOException();
+              mockSender.advance();
+              times = 1;
+              mockDelivery.free();
+              times = 1;
+          }
+      };
+
+      final AmqpsIotHubConnection connection = new AmqpsIotHubConnection(mockConfig, false);
+
+      Deencapsulation.setField(connection, "state", State.OPEN);
+      Deencapsulation.setField(connection, "linkCredit", 100);
+      Deencapsulation.setField(connection, "sender", mockSender);
+
+      connection.sendMessage(mockProtonMessage);
+    }
+
     // Tests_SRS_AMQPSIOTHUBCONNECTION_15_022: [If the AMQPS Connection is closed, the function shall return false.]
     @Test
     public void sendMessageReturnsFalseIfConnectionIsClosed() throws IOException
